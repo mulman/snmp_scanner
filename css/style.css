@@ -1,0 +1,23 @@
+body {
+    background-color: #FeFeF4;
+}
+h1 {
+    color: #0060D0;        
+}
+b {
+    color: gray;
+}
+td.black {
+    background-color: black;
+    color: white;
+}
+td.cyan {
+    background-color: cyan;
+}
+td.magenta {
+    background-color: magenta;
+    color: white;
+}
+td.yellow {
+    background-color: yellow;
+}
