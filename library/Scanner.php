@@ -41,20 +41,17 @@ class Scanner
     /*
      * IP address
      */
-    protected $ip;
+    protected $ip = null;
     
     /*
      * Constructor
      */
-    public function __construct($ip) 
+    public function __construct($ip = null) 
     {
         if(!extension_loaded('snmp')) 
             throw new Exception('PHP SNMP extension is not loaded!!!');
-        
-        if(!is_string($ip)) 
-            throw new Exception('IP is not a String');
-        
-        $this->ip = $ip;       
+                
+        if($ip != null && is_string($ip)) $this->ip = $ip;       
     }
     
     /**
@@ -67,6 +64,14 @@ class Scanner
         return $this->getSNMP(self::SNMP_PRINTER_MESSAGE);
     }
     
+    /**
+     * Function sets IP address
+     * 
+    */
+    public function setIP($ip)
+    {
+        $this->ip = $ip;
+    }
     /**
      * Function returns IP address
      * 
@@ -231,6 +236,8 @@ class Scanner
      */
     private function getSNMP($snmpID = self::SNMP_ERROR_CODE)
     {
+        if($this->ip == null) throw new Exception('Ip was not defined');
+        
         $snmpRespond = @snmpget($this->ip, 'public', $snmpID, self::MAX_TIMEOUT);         
         return $this->filterRespond($snmpRespond) != '' ? $this->filterRespond($snmpRespond) : '-Nothing-';
     }
