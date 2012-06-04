@@ -28,6 +28,10 @@ class Scanner
     const SNMP_CYAN_DRUM                = '.1.3.6.1.2.1.43.11.1.1.9.1.6';
     const SNMP_MAGENTA_DRUM             = '.1.3.6.1.2.1.43.11.1.1.9.1.7';
     const SNMP_YELLOW_DRUM              = '.1.3.6.1.2.1.43.11.1.1.9.1.8';
+    const SNMP_BELT                     = '.1.3.6.1.2.1.43.11.1.1.9.1.9';
+    const SNMP_FUSER                    = '.1.3.6.1.2.1.43.11.1.1.9.1.10';
+    const SNMP_MAX_BELT                 = '.1.3.6.1.2.1.43.11.1.1.8.1.9';
+    const SNMP_MAX_FUSER                = '.1.3.6.1.2.1.43.11.1.1.8.1.10';
     const SNMP_MAX_BLACK_DRUM           = '.1.3.6.1.2.1.43.11.1.1.8.1.5';
     const SNMP_MAX_CYAN_DRUM            = '.1.3.6.1.2.1.43.11.1.1.8.1.6';
     const SNMP_MAX_MAGENTA_DRUM         = '.1.3.6.1.2.1.43.11.1.1.8.1.7';
@@ -187,7 +191,7 @@ class Scanner
      */
     public function getBlackDrumLevel()
     {
-        return (int)$this->getDrumkitValue(self::SNMP_BLACK_DRUM, self::SNMP_MAX_BLACK_DRUM);
+        return (int)$this->getDrumkitPercentValue(self::SNMP_BLACK_DRUM, self::SNMP_MAX_BLACK_DRUM);
     }
     
     /**
@@ -197,7 +201,7 @@ class Scanner
      */
     public function getCyanDrumLevel()
     {
-        return (int)$this->getDrumkitValue(self::SNMP_CYAN_DRUM, self::SNMP_MAX_CYAN_DRUM);
+        return (int)$this->getDrumkitPercentValue(self::SNMP_CYAN_DRUM, self::SNMP_MAX_CYAN_DRUM);
     }
     
     /**
@@ -207,7 +211,7 @@ class Scanner
      */
     public function getMagentaDrumLevel()
     {
-        return (int)$this->getDrumkitValue(self::SNMP_MAGENTA_DRUM, self::SNMP_MAX_MAGENTA_DRUM);
+        return (int)$this->getDrumkitPercentValue(self::SNMP_MAGENTA_DRUM, self::SNMP_MAX_MAGENTA_DRUM);
     }
     
     /**
@@ -217,7 +221,27 @@ class Scanner
      */
     public function getYellowDrumLevel()
     {
-        return (int)$this->getDrumkitValue(self::SNMP_YELLOW_DRUM, self::SNMP_MAX_YELLOW_DRUM);
+        return (int)$this->getDrumkitPercentValue(self::SNMP_YELLOW_DRUM, self::SNMP_MAX_YELLOW_DRUM);
+    }
+    
+    /**
+     * Function gets level of belt
+     * 
+     * @return int
+     */
+    public function getBeltLevel()
+    {
+        return (int)$this->getBeltFuserPercentValue(self::SNMP_BELT, self::SNMP_MAX_BELT);
+    }
+    
+    /**
+     * Function gets level of fuser
+     * 
+     * @return int
+     */    
+    public function getFuserLevel()
+    {
+        return (int)$this->getBeltFuserPercentValue(self::SNMP_FUSER, self::SNMP_MAX_FUSER);
     }
     
     /**
@@ -225,11 +249,20 @@ class Scanner
      * 
      * @return int
      */
-    private function getDrumkitValue($drumObjectID,$drumMaxObjectID)
+    private function getDrumkitPercentValue($drumObjectID,$drumMaxObjectID)
     {
         return round(($this->getSNMP($drumObjectID) / $this->getSNMP($drumMaxObjectID)) * 100);
     }
     
+    /**
+     * Function returns belt level
+     * 
+     * @return int
+     */
+    private function getBeltFuserPercentValue($drumObjectID,$drumMaxObjectID)
+    {
+        return 100 - round(($this->getSNMP($drumObjectID) / $this->getSNMP($drumMaxObjectID)) * 100);
+    }
     /**
      * Function returns SNMPget
      * 
