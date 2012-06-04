@@ -65,7 +65,7 @@ class Scanner
      */
     public function getErrorMessage()
     {
-        return $this->getSNMP(self::SNMP_PRINTER_MESSAGE);
+        return $this->getSNMP(self::SNMP_PRINTER_MESSAGE);    
     }
     
     /**
@@ -287,7 +287,7 @@ class Scanner
             'INTEGER: ',
             '"'
         );        
-        return str_replace($garbage, '', $respond);       
+        return trim(str_replace($garbage, '', $respond));       
     }    
 }
 
