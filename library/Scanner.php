@@ -259,9 +259,9 @@ class Scanner
      * 
      * @return int
      */
-    private function getBeltFuserPercentValue($drumObjectID,$drumMaxObjectID)
+    private function getBeltFuserPercentValue($beltFuserObjectID,$beltFuserMaxObjectID)
     {
-        return 100 - round(($this->getSNMP($drumObjectID) / $this->getSNMP($drumMaxObjectID)) * 100);
+        return 100 - round(($this->getSNMP($beltFuserObjectID) / $this->getSNMP($beltFuserMaxObjectID)) * 100);
     }
     /**
      * Function returns SNMPget
