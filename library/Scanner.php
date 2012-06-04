@@ -107,6 +107,16 @@ class Scanner
     }
     
     /**
+     * Function gets count of printed page
+     * 
+     * @sreturn string
+     */    
+    public function getPageCount()
+    {
+        return $this->getSNMP(self::SNMP_PRINTER_PAGE_COUNT);
+    }
+    
+    /**
      * Function gets name of printer
      * 
      * @return string
