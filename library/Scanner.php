@@ -43,6 +43,10 @@ class Scanner
     const MAX_TIMEOUT = 100000;
     
     /*
+     * Null value
+     */
+    const NULL_VALUE = '-Nothing-';
+    /*
      * IP address
      */
     protected $ip = null;
@@ -282,7 +286,7 @@ class Scanner
         if($this->ip == null) throw new Exception('Ip was not defined');
         
         $snmpRespond = @snmpget($this->ip, 'public', $snmpID, self::MAX_TIMEOUT);         
-        return $this->filterRespond($snmpRespond) != '' ? $this->filterRespond($snmpRespond) : '-Nothing-';
+        return $this->filterRespond($snmpRespond) != '' ? $this->filterRespond($snmpRespond) : self::NULL_VALUE;
     }
     
     /**
