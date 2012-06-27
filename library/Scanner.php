@@ -40,7 +40,7 @@ class Scanner
     /*
      * Max Timeout for scan
      */
-    const MAX_TIMEOUT = 100000;
+    const MAX_TIMEOUT = 10000;
     
     /*
      * Null value
