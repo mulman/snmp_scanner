@@ -46,10 +46,16 @@ class Scanner
      * Null value
      */
     const NULL_VALUE = '-Nothing-';
+    
     /*
      * IP address
      */
     protected $ip = null;
+    
+    /*
+     * Hex Boolean
+     */
+    protected $isHex = false;
     
     /*
      * Constructor
@@ -295,14 +301,41 @@ class Scanner
      * @return string
      */
     private function filterRespond($respond)
-    {
+    {       
         $garbage = array(
             'STRING: ',
             'INTEGER: ',
+            'Hex-',
             '"'
-        );        
-        return trim(str_replace($garbage, '', $respond));       
-    }    
+        );   
+        
+        if(strpos($respond, 'Hex-') !== false) $this->isHex = true;
+       
+        $respond = trim(str_replace($garbage, '', $respond));
+        
+        // If $respond has a HEX format
+        if($this->isHex == true) 
+        {
+            $respond = $this->hexToStr($respond);   
+            $this->isHex = false;
+        }        
+        return $respond;       
+    }
+    
+    /*
+     * Function converts Xex to Str
+     */
+    private function hexToStr($hex)
+    {
+        $hex = str_replace(" ", "",  $hex);
+        
+        $string='';
+        for ($i=0; $i < strlen($hex)-1; $i+=2)
+        {
+            $string .= chr(hexdec($hex[$i].$hex[$i+1]));
+        }
+        return str_replace(" ", "",  $string);
+    }
 }
 
 ?>
