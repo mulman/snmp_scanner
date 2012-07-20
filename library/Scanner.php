@@ -65,7 +65,7 @@ class Scanner
         if(!extension_loaded('snmp')) 
             throw new Exception('PHP SNMP extension is not loaded!!!');
                 
-        if($ip != null && is_string($ip)) $this->ip = $ip;       
+        if($ip != null && is_string($ip)) $this->setIP($ip);       
     }
     
     /**
@@ -84,8 +84,13 @@ class Scanner
     */
     public function setIP($ip)
     {
-        $this->ip = $ip;
+        if(preg_match("/^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/",$ip))
+        {
+            $this->ip = $ip;
+        } 
+        else throw new Exception($ip . ' is not a valid IP address !');
     }
+    
     /**
      * Function returns IP address
      * 
