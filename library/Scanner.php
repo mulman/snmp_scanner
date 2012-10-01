@@ -1,17 +1,33 @@
 <?php
+/* vim: set expandtab tabstop=4 shiftwidth=4 softtabstop=4: */
+/**
+ * Scanner is a class for scanning printers
+ *
+ * PHP version 5
+ *
+ * @category  SNMP
+ * @package   SNMP
+ * @author    Marek Ulman <suns3trid3r@gmail.com>
+ * @copyright 2012 Marek Ulman
+ * @license   http://www.gnu.org/licenses/gpl.html GNU
+ * @link      https://github.com/mulman/snmp_scanner github
+ */
 
 /**
  * Scanner is a class for scanning printers
  *
- * @author Marek Ulman
- * @copyright Copyright (c) 2012 - Marek Ulman
- * @license http://www.gnu.org/licenses/gpl.html
+ * @category  SNMP
+ * @package   SNMP
+ * @author    Marek Ulman <suns3trid3r@gmail.com>
+ * @copyright 2012 Marek Ulman
+ * @license   http://www.gnu.org/licenses/gpl.html GNU
+ * @link      https://github.com/mulman/snmp_scanner github
  */
-class Scanner 
+class Scanner
 {
-    /*
+    /**
      * SNMP IDs
-     */   
+     */
     const SNMP_PRINTER_MESSAGE          = '.1.3.6.1.2.1.43.16.5.1.2.1.2';
     const SNMP_PRINTER_FACTORY_ID       = '.1.3.6.1.2.1.1.1.0';
     const SNMP_PRINTER_NAME             = '.1.3.6.1.2.1.1.5.0';
@@ -37,123 +53,133 @@ class Scanner
     const SNMP_MAX_MAGENTA_DRUM         = '.1.3.6.1.2.1.43.11.1.1.8.1.7';
     const SNMP_MAX_YELLOW_DRUM          = '.1.3.6.1.2.1.43.11.1.1.8.1.8';
 
-    /*
+    /**
      * Max Timeout for scan
      */
     const MAX_TIMEOUT = 10000;
-    
-    /*
+
+    /**
      * Null value
      */
     const NULL_VALUE = '-Nothing-';
-    
-    /*
+
+    /**
      * IP address
      */
     protected $ip = null;
-    
-    /*
+
+    /**
      * Hex Boolean
      */
     protected $isHex = false;
-    
-    /*
-     * Constructor
-     */
-    public function __construct($ip = null) 
-    {
-        if(!extension_loaded('snmp')) 
-            throw new Exception('PHP SNMP extension is not loaded!!!');
-                
-        if($ip != null && is_string($ip)) $this->setIP($ip);       
-    }
-    
+
     /**
-     * Function gets error message of printer
-     * 
+     * Constructor
+     *
+     * @param string $ip IP
+     *
+     * @throws Exception
+     */
+    public function __construct($ip = null)
+    {
+        if (!extension_loaded('snmp')) {
+            throw new Exception('PHP SNMP extension is not loaded!!!');
+        }
+        if ($ip != null && is_string($ip)) {
+            $this->setIP($ip);
+        }
+    }
+
+    /**
+     * Function gets error message of device
+     *
      * @return string
      */
     public function getErrorMessage()
     {
-        return $this->getSNMP(self::SNMP_PRINTER_MESSAGE);    
+        return $this->_getSNMP(self::SNMP_PRINTER_MESSAGE);
     }
-    
+
     /**
      * Function sets IP address
-     * 
-    */
+     *
+     * @param string $ip IP
+     *
+     * @throws Exception
+     * @return void
+     */
     public function setIP($ip)
     {
-        if(preg_match("/^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/",$ip))
-        {
+        if (preg_match("/^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/", $ip)) {
             $this->ip = $ip;
-        } 
-        else throw new Exception($ip . ' is not a valid IP address !');
+        } else {
+            throw new Exception($ip . ' is not a valid IP address !');
+        }
     }
-    
+
     /**
-     * Function returns IP address
-     * 
+     * Function gets IP address
+     *
      * @return string
      */
     public function getIP()
     {
         return $this->ip;
     }
-    
+
     /**
      * Function gets vendor name of printer
-     * 
+     *
      * @return string
      */
     public function getVendorName()
     {
-        return $this->getSNMP(self::SNMP_PRINTER_VENDOR_NAME);
+        return $this->_getSNMP(self::SNMP_PRINTER_VENDOR_NAME);
     }
-    
+
     /**
      * Function gets running time
-     * 
-     * @sreturn string
+     *
+     * @return string
      */
     public function getRunningTime()
     {
-        return $this->getSNMP(self::SNMP_PRINTER_RUNNING_TIME);
+        return $this->_getSNMP(self::SNMP_PRINTER_RUNNING_TIME);
     }
-    
+
     /**
      * Function gets count of printed page
-     * 
-     * @sreturn string
-     */    
+     *
+     * @return string
+     */
     public function getPageCount()
     {
-        return $this->getSNMP(self::SNMP_PRINTER_PAGE_COUNT);
+        return $this->_getSNMP(self::SNMP_PRINTER_PAGE_COUNT);
     }
-    
+
     /**
      * Function gets name of printer
-     * 
+     *
      * @return string
      */
     public function getPrinterName()
     {
-        return $this->getSNMP(self::SNMP_PRINTER_NAME);
+        return $this->_getSNMP(self::SNMP_PRINTER_NAME);
     }
-    
+
     /**
      * Function gets serial number of printer
-     * 
+     *
      * @return string
      */
     public function getSerialNumber()
     {
-        return $this->getSNMP(self::SNMP_SERIAL_NUMBER);
+        return $this->_getSNMP(self::SNMP_SERIAL_NUMBER);
     }
-    
+
     /**
      * Function returns a basic info of printer
-     * 
+     *
      * @return string
      */
     public function getPrinterInfo()
@@ -165,178 +191,209 @@ class Scanner
             'ipAddress'      => $this->getIP(),
             'runningTime'    => $this->getRunningTime(),
             'printerMessage' => $this->getErrorMessage(),
-            'pageCount'      => $this->getSNMP(self::SNMP_PRINTER_PAGE_COUNT)
+            'pageCount'      => $this->_getSNMP(self::SNMP_PRINTER_PAGE_COUNT)
             );
     }
-    
+
     /**
      * Function gets level of black toner
-     * 
+     *
      * @return int
      */
     public function getBlackTonerLevel()
     {
-        return (int)$this->getSNMP(self::SNMP_BLACK_TONER);
+        return (int)$this->_getSNMP(self::SNMP_BLACK_TONER);
     }
-    
+
     /**
      * Function gets level of cyan toner
-     * 
+     *
      * @return int
      */
     public function getCyanTonerLevel()
     {
-        return (int)$this->getSNMP(self::SNMP_CYAN_TONER);
+        return (int)$this->_getSNMP(self::SNMP_CYAN_TONER);
     }
-    
+
     /**
      * Function gets level of magenta toner
-     * 
+     *
      * @return int
      */
     public function getMagentaTonerLevel()
     {
-        return (int)$this->getSNMP(self::SNMP_MAGENTA_TONER);
+        return (int)$this->_getSNMP(self::SNMP_MAGENTA_TONER);
     }
-    
+
     /**
      * Function gets level of yellow toner
-     * 
+     *
      * @return int
      */
     public function getYellowTonerLevel()
     {
-        return (int)$this->getSNMP(self::SNMP_YELLOW_TONER);
+        return (int)$this->_getSNMP(self::SNMP_YELLOW_TONER);
     }
-    
+
     /**
      * Function gets level of black drumkit
-     * 
+     *
      * @return int
      */
     public function getBlackDrumLevel()
     {
-        return (int)$this->getDrumkitPercentValue(self::SNMP_BLACK_DRUM, self::SNMP_MAX_BLACK_DRUM);
+        return (int)$this->_getDrumkitPercentValue(
+            self::SNMP_BLACK_DRUM, self::SNMP_MAX_BLACK_DRUM
+        );
     }
-    
+
     /**
      * Function gets level of cyan drumkit
-     * 
+     *
      * @return int
      */
     public function getCyanDrumLevel()
     {
-        return (int)$this->getDrumkitPercentValue(self::SNMP_CYAN_DRUM, self::SNMP_MAX_CYAN_DRUM);
+        return (int)$this->_getDrumkitPercentValue(
+            self::SNMP_CYAN_DRUM, self::SNMP_MAX_CYAN_DRUM
+        );
     }
-    
+
     /**
      * Function gets level of magenta drumkit
-     * 
+     *
      * @return int
      */
     public function getMagentaDrumLevel()
     {
-        return (int)$this->getDrumkitPercentValue(self::SNMP_MAGENTA_DRUM, self::SNMP_MAX_MAGENTA_DRUM);
+        return (int)$this->_getDrumkitPercentValue(
+            self::SNMP_MAGENTA_DRUM, self::SNMP_MAX_MAGENTA_DRUM
+        );
     }
-    
+
     /**
      * Function gets level of yellow drumkit
-     * 
+     *
      * @return int
      */
     public function getYellowDrumLevel()
     {
-        return (int)$this->getDrumkitPercentValue(self::SNMP_YELLOW_DRUM, self::SNMP_MAX_YELLOW_DRUM);
+        return (int)$this->_getDrumkitPercentValue(
+            self::SNMP_YELLOW_DRUM, self::SNMP_MAX_YELLOW_DRUM
+        );
     }
-    
+
     /**
      * Function gets level of belt
-     * 
+     *
      * @return int
      */
     public function getBeltLevel()
     {
-        return (int)$this->getBeltFuserPercentValue(self::SNMP_BELT, self::SNMP_MAX_BELT);
+        return (int)$this->_getBeltFuserPercentValue(
+            self::SNMP_BELT, self::SNMP_MAX_BELT
+        );
     }
-    
+
     /**
      * Function gets level of fuser
-     * 
+     *
      * @return int
-     */    
+     */
     public function getFuserLevel()
     {
-        return (int)$this->getBeltFuserPercentValue(self::SNMP_FUSER, self::SNMP_MAX_FUSER);
+        return (int)$this->_getBeltFuserPercentValue(
+            self::SNMP_FUSER, self::SNMP_MAX_FUSER
+        );
     }
-    
+
     /**
-     * Function returns drumkit level
-     * 
+     * Function returns Drumkit value in percent
+     *
+     * @param string $drumObjectID    SNMP ID Drum
+     * @param string $drumMaxObjectID SNMP ID Drum Max
+     *
      * @return int
      */
-    private function getDrumkitPercentValue($drumObjectID,$drumMaxObjectID)
+    private function _getDrumkitPercentValue($drumObjectID,$drumMaxObjectID)
     {
-        return round(($this->getSNMP($drumObjectID) / $this->getSNMP($drumMaxObjectID)) * 100);
+        return round(($this->_getSNMP($drumObjectID) / $this->_getSNMP($drumMaxObjectID)) * 100);
     }
-    
+
     /**
-     * Function returns belt level
-     * 
+     * Function returns BeltFuser value in percent
+     *
+     * @param string $beltFuserObjectID    SNMP ID Drum
+     * @param string $beltFuserMaxObjectID SNMP ID Drum Max
+     *
      * @return int
      */
-    private function getBeltFuserPercentValue($beltFuserObjectID,$beltFuserMaxObjectID)
+    private function _getBeltFuserPercentValue($beltFuserObjectID,$beltFuserMaxObjectID)
     {
-        return 100 - round(($this->getSNMP($beltFuserObjectID) / $this->getSNMP($beltFuserMaxObjectID)) * 100);
+        return 100 - round(($this->_getSNMP($beltFuserObjectID) / $this->_getSNMP($beltFuserMaxObjectID)) * 100);
     }
+
     /**
      * Function returns SNMPget
-     * 
+     *
+     * @param string $snmpID SNMPid
+     *
+     * @return string
+     * @throws Exception
      */
-    private function getSNMP($snmpID = self::SNMP_ERROR_CODE)
+    private function _getSNMP($snmpID = self::SNMP_ERROR_CODE)
     {
-        if($this->ip == null) throw new Exception('Ip was not defined');
-        
-        $snmpRespond = @snmpget($this->ip, 'public', $snmpID, self::MAX_TIMEOUT);         
-        return $this->filterRespond($snmpRespond) != '' ? $this->filterRespond($snmpRespond) : self::NULL_VALUE;
+        if ($this->ip == null) {
+            throw new Exception('Ip was not defined');
+        }
+
+        $snmpRespond = @snmpget($this->ip, 'public', $snmpID, self::MAX_TIMEOUT);
+        return $this->_filterRespond($snmpRespond) != ''
+                ? $this->_filterRespond($snmpRespond) : self::NULL_VALUE;
     }
-    
+
     /**
-     * Function returns filtered respond
-     * 
+     * Function filters a respond
+     *
+     * @param string $respond Respond
+     *
      * @return string
      */
-    private function filterRespond($respond)
-    {       
+    private function _filterRespond($respond)
+    {
         $garbage = array(
             'STRING: ',
             'INTEGER: ',
             'Hex-',
             '"'
-        );   
-        
-        if(strpos($respond, 'Hex-') !== false) $this->isHex = true;
-       
+        );
+
+        if (strpos($respond, 'Hex-') !== false) {
+            $this->isHex = true;
+        }
         $respond = trim(str_replace($garbage, '', $respond));
-        
+
         // If $respond has a HEX format
-        if($this->isHex == true) 
-        {
-            $respond = $this->hexToStr($respond);   
+        if ($this->isHex == true) {
+            $respond = $this->_hexToStr($respond);
             $this->isHex = false;
-        }        
-        return $respond;       
+        }
+        return $respond;
     }
-    
-    /*
-     * Function converts Xex to Str
+
+    /**
+     * Function converts Hex to Str
+     *
+     * @param string $hex Hex
+     *
+     * @return string
      */
-    private function hexToStr($hex)
+    private function _hexToStr($hex)
     {
         $hex = str_replace(" ", "",  $hex);
-        
+
         $string='';
-        for ($i=0; $i < strlen($hex)-1; $i+=2)
-        {
+        for ($i=0; $i < strlen($hex)-1; $i+=2) {
             $string .= chr(hexdec($hex[$i].$hex[$i+1]));
         }
         return str_replace(" ", "",  $string);
